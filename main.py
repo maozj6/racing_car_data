@@ -76,7 +76,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Play CarRacing by the trained model.')
     parser.add_argument('-i', '--input', default='save/trial_200.h5', help='the path of saved model')
     parser.add_argument('-o', '--output', default='record/train', help='output path, dir\'s name')
-    parser.add_argument('-n', '--numbers', type=int, default=60000, help='The number of episodes should the model plays.')
+    parser.add_argument('-n', '--numbers', type=int, default=100000, help='The number of episodes should the model plays.')
     args = parser.parse_args()
 
     train_model = ["save/trial_100.h5","save/trial_200.h5","save/trial_300.h5","save/trial_400.h5","save/trial_500.h5","save/trial_600.h5"]
@@ -95,8 +95,8 @@ if __name__ == '__main__':
     play_numbers = args.numbers
 
     env = gym.make('CarRacing-v0')
-    env.seed(10)
-    np.random.seed(10)
+    env.seed(999)
+    np.random.seed(999)
     agent = CarRacingDQNAgent(epsilon=0)  # Set epsilon to 0 to ensure all actions are instructed by the agent
     serise=[]
     for i in range(len(train_model)):
@@ -109,7 +109,7 @@ if __name__ == '__main__':
         recording_safe = []
         recording_position = []
         recording_map = []
-        while guard<10000:
+        for t in range(15):
 
 
 
@@ -121,6 +121,14 @@ if __name__ == '__main__':
             punishment_counter = 0
             state_frame_stack_queue = deque([init_state] * agent.frame_stack_num, maxlen=agent.frame_stack_num)
             time_frame_counter = 1
+            for j in range(50):
+                env.render()
+                current_state_frame_stack = generate_state_frame_stack_from_queue(state_frame_stack_queue)
+                action = agent.act(current_state_frame_stack)
+                next_state, reward, done, info = env.step(action)
+                total_reward += reward
+                next_state = process_state_image(next_state)
+                state_frame_stack_queue.append(next_state)
 
             while True:
                 env.render()
@@ -180,5 +188,7 @@ if __name__ == '__main__':
 
         # print(tmp)
     np.save(outdir + "/labels.npy", safes)
+    np.save(outdir + "/serise.npy", serise)
+
     # if len(recording_obs)==1000:
     # print("end")

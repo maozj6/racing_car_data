@@ -11,3 +11,9 @@ Eliminate opening/zooming-in animation, about 50 frames/episode
 Predicting Step:
 
 10->200 (steps:10)
+
+
+ conda env export > environment.yml
+
+ conda env create -f environment.yml
+
